@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="UTF-8">
+<title>Online TODO List</title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+	crossorigin="*">
+	
+<script type = "text/javascript">  
+function taskStatusChange(id, taskStatus) {   
+	console.log("Task clicked - "+id+ " --- "+taskStatus );  
+	
+	var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+	var theUrl = "/tasks/changeStatus";
+	xmlhttp.open("POST", theUrl);
+	xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+	xmlhttp.send(JSON.stringify({ "id": id, "isTaskCompleted": taskStatus }));
+}  
+</script>
+</head>
+<body>
+
+<!-- create navigation bar ( header) -->
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+					aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#" th:href="@{/tasks}">Online TODO List</a>
+			</div>
+		</div>
+		<div id="navbar" class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+				<li sec:authorize="isAuthenticated()"><a th:href="@{/logout}">Logout</a></li>
+			</ul>
+		</div>
+	</nav>
+	<br><br><br><br>
+	<br><br>
+
+	<div class ="container">
+		<div class = "row">
+			<div class = "col-lg-3">
+				<a th:href = "@{/tasks/new}" class = "btn btn-primary btn-sm mb-3"> Create new Task </a>
+			</div>
+		</div>
+		<br>
+				
+		<table class = "table table-striped table-bordered">
+			<thead class = "table-dark">
+				<tr>
+				    <th> Completed? </th>
+					<th> Task</th>
+					<th> Created At</th>
+					<th> Last Updated At </th>
+					<th> Actions </th>
+				</tr>
+			</thead>
+			
+			<tbody>
+				<tr th:each = "task: ${tasks}">
+					<td>
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" id="isTaskCompleted" th:onchange="'javascript:taskStatusChange(\'' + ${task.id} + '\', checked);'" th:checked ="${task.isTaskCompleted}" >
+						</div>
+					</td>
+					<td th:text = "${task.taskname}"></td>
+					<td th:text="${#dates.format(task.created, 'dd-MM-yyyy HH:mm')}"></td>
+					<td th:text="${#dates.format(task.updated, 'dd-MM-yyyy HH:mm')}"></td>
+					<td>
+						<a th:href = "@{/tasks/edit/{id}(id=${task.id})}"
+						 class = "btn btn-primary">Update</a>
+						
+						<a th:href = "@{/tasks/{id}(id=${task.id})}"
+						 class = "btn btn-danger">Delete</a> 
+					</td>
+				</tr>
+			</tbody>	
+		</table>
+	</div>
+</body>
+</html>
